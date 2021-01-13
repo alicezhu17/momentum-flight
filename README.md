@@ -6,9 +6,13 @@ No need to learn git commands for this project; use copy/paste
 
 ### To Add File ###
 Go to the correct Draft folder
+
 Click 'Add file' > 'Create new file'
+
 Title as name-date.py
+
 Copy paste file
+
 Click 'Commit new file'
 
 ### Resources ###
