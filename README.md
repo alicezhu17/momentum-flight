@@ -18,7 +18,7 @@ Click 'Commit new file'
 ### To Do ###
 1. Read the Momentum Code Notes Google Docs linked below. You can skip page 1 but the other pages are important to understand the pseudocode and how to interact with the software in Python.
 
-2. Look at the two python files located in the folders above. I write at the top of the files the lines that are new and not copy pasted from the LM github ie lines 45-81
+2. Look at the two python files located in the folders above. I write at the top of the files which lines are new and not copy pasted from the LM github, ie lines 45-81.
 
 3. If you have questions compile them at the top of the Momentum Code Notes Google Docs.
 
