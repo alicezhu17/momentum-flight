@@ -16,11 +16,11 @@ Copy paste file
 Click 'Commit new file'
 
 ### To Do ###
-1. Read the Momentum Code Notes Google Docs linked below. You can skip page 1 but the other pages are important to understand the pseudocode and how to interact with the software in Python.
+1. Read the [Momentum Code Notes](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing) to understand how to interact with the software in Python. You can skip page 1 
 
-2. Look at the two python files located in the folders above. I write at the top of the files which lines are new and not copy pasted from the LM github, ie lines 45-81.
+If you have questions compile them at the top of the Google Docs
 
-3. If you have questions compile them at the top of the Momentum Code Notes Google Docs.
+2. (If time) Look at the two python files located in the folders above. I write at the top which lines are important 
 
 ### Resources ###
 [Momentum Code Notes Google Docs](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing)
