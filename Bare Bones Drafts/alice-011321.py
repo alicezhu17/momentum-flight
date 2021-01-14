@@ -2,7 +2,6 @@ import asyncio
 from mavsdk import System
 from mavsdk.mission import (MissionItem, MissionPlan)
 
-#very unsure if this structure works
 #new code (the only portion not copied from demo_mission.py) located in lines 45-81
 
 #helper functions not needed for barebones
@@ -45,7 +44,7 @@ async def run():
     
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = None, None #TODO
+    dest_lat,dest_lon = None, None #should be given
 
     mission_items = []
     # append (home_lat,home_lon,max_alt), 
