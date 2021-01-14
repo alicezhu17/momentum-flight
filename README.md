@@ -16,6 +16,6 @@ Copy paste file
 Click 'Commit new file'
 
 ### Resources ###
-[LM Github](https://github.com/katabeta/lm-mit-momentum)
-
 [Momentum Code Notes Google Docs](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing)
+
+[LM Github](https://github.com/katabeta/lm-mit-momentum)
