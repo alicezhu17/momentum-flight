@@ -6,9 +6,10 @@ import time # For the example only
 import pygazebo
 # What you import here depends on the message type you are subscribing to
 import pygazebo.msg.v11.laserscan_stamped_pb2
+import math
 
 #very unsure if this structure works
-#new code (portion not copied) located in lines 
+#new code (portion not copied) located in calc_z_coord and lines 104-123
 
 def rad_to_degrees(rad):
     #TODO
@@ -22,11 +23,11 @@ def calc_z_coord(data):
     dis = data.scan.ranges[0] #TODO which index is pointing down?
     deltaz = 0
     if abs(dis-AGL) < 1:
-        deltaz = 3 #random number
+        deltaz = 3 #increase altitude by random number
     return deltaz
 
 
-#copied from lidar_read.py
+# copied from lidar_read.py
 # This is the gazebo master from PX4 message `[Msg] Connected to gazebo master @ http://127.0.0.1:11345`
 HOST, PORT = "127.0.0.1", 11345
 
@@ -110,13 +111,17 @@ async def run():
     asyncio.ensure_future(gz_sub.connect())
     while abs(x-dest_lat) > 0.1 or abs(y-dest_lon) > 0.1: #if far, move
         data = await gz_sub.get_LaserScanStamped()
-        x = 0 #TODO
-        y = 0 #TODO
-        z = 0 #TODO this is current z
+        x = data.scan.world_pose.position.x #TODO get current x, y, z
+        y = data.scan.world_pose.position.y 
+        z = data.scan.world_pose.position.z 
         deltaz = calc_z_coord(data)
         z += deltaz
+        x += math.copysign(1, dest_lat-x)*5 #goes 5m in direc of dest i think
+        y += math.copysign(1, dest_lat-x)*5
         await drone.action.goto_location(x,y,z)
-    
+
+    drone.action.goto_location(dest_lat,dest_lon,0) #land if close
+
     '''#not sure if this portion needed if we use goto function
     #rest copied from demo_mission.py
     #upload/start mission
