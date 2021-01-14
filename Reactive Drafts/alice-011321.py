@@ -8,7 +8,7 @@ import pygazebo
 import pygazebo.msg.v11.laserscan_stamped_pb2
 import math
 
-#very unsure if this structure works
+#i think this is the structure
 #new code (portion not copied) located in calc_z_coord and lines 104-123
 
 def rad_to_degrees(rad):
@@ -20,7 +20,7 @@ def degrees_to_rad(deg):
     return
 
 def calc_z_coord(data):
-    dis = data.scan.ranges[0] #TODO which index is pointing down?
+    dis = data.scan.ranges[140] #TODO which index is pointing down?
     deltaz = 0
     if abs(dis-AGL) < 1:
         deltaz = 3 #increase altitude by random number
@@ -101,11 +101,18 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
+    #copied from mavsdk goto.py
+    print("-- Arming")
+    await drone.action.arm()
+
+    print("-- Taking off")
+    await drone.action.takeoff()
+
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = None, None #TODO
+    dest_lat,dest_lon = None, None #TODO should be given
     x,y = home_lat, home_lon
-    AGL = 10 #TODO
+    AGL = 10 #TODO  should be given
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect())
