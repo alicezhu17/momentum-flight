@@ -12,13 +12,13 @@ import math
 #new code (portion not copied) located in calc_z_coord and lines 104-123
 
 def rad_to_degrees(rad):
-    #TODO
-    return
-
+    
+    return rad*180/pi
+#DONE
 def degrees_to_rad(deg):
-    #TODO
-    return
-
+    
+    return deg*pi/180
+#DONE
 def calc_z_coord(data):
     dis = data.scan.ranges[140] #TODO which index is pointing down?
     deltaz = 0
