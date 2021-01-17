@@ -123,14 +123,14 @@ async def run():
 
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = None, None #TODO should be given
+    dest_lat,dest_lon = 10, 10 #TODO should be given
     x,y = home_lat, home_lon
     AGL = 10 #TODO should be given
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
 
-    while abs(x-dest_lat) > 0.1 or abs(y-dest_lon) > 0.1: #if far, move
+    while abs(x-dest_lat) > 0.1 and abs(y-dest_lon) > 0.1: #if far, move
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
         #print(data) #will print data when program is run
 
@@ -145,7 +145,27 @@ async def run():
 
     await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close
 
-    '''#not sure if this portion needed if we use goto function
+    '''
+    #Alternate while pseudocode
+    while far from destination:
+        data = await gz_sub.get_LaserScanStamped()
+        if close to obstacle:
+            go up
+        else:
+            go straight
+
+    #Current while pseudocode
+    while far from destination:
+        data = await gz_sub.get_LaserScanStamped()
+        if close to obstacle:
+            deltaz = something positive
+        else:
+            deltaz = 0
+        move x y in direction of destination, and move z by deltaz
+    '''
+
+
+    '''#don't think this portion needed if we use goto function
     #rest copied from demo_mission.py
     #upload/start mission
     inject_pt_task = asyncio.ensure_future(inject_pt(drone, mission_items, home_alt, home_lat, home_lon))
