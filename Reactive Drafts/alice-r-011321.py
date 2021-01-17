@@ -134,6 +134,7 @@ async def run():
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
         #print(data) #will print data when program is run
 
+        #TODO change the rest of this while loop depending on which pseudocode below you use
         x = data.scan.world_pose.position.x #TODO get current x, y, z
         y = data.scan.world_pose.position.y 
         z = data.scan.world_pose.position.z 
