@@ -2,20 +2,7 @@ import asyncio
 from mavsdk import System
 from mavsdk.mission import (MissionItem, MissionPlan)
 
-#new code (the only portion not copied from demo_mission.py) located in lines 45-81
-
-#helper functions not needed for barebones
-def rad_to_degrees(rad):
-    #TODO
-    return
-
-def degrees_to_rad(deg):
-    #TODO
-    return
-
-def calc_z_coord(data):
-    #TODO
-    return
+#new code (the only portion not copied from demo_mission.py) located in lines 32-68
 
 async def run():
     #section copied from demo_mission.py
