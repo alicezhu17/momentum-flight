@@ -18,9 +18,9 @@ Click 'Commit new file'
 ### Tasks ###
 Goal: Super basic reactionary alg: if middle sensors are close to obstacle, go up. else, go straight
 
-2. Distance pointing down: given lidar_data, use orientation to figure out which index is pointing down and this distance
+1. Distance pointing down: given lidar_data, use orientation to figure out which index is pointing down and this distance
 
-3. Math for alg: currently have random numbers for how much forward or up drone should go. need to put in more reasonable numbers
+2. Math for alg: currently have random numbers for how much forward or up drone should go. need to put in more reasonable numbers
 
 3. Test: that program runs on remote terminal
 
