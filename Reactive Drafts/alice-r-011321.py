@@ -8,7 +8,7 @@ import pygazebo
 import pygazebo.msg.v11.laserscan_stamped_pb2
 import math
 
-#new code (portion not copied) located in calc_z_coord and lines 104-123
+#new code (portion not copied) located in calc_z_coord and lines 124-146
 
 def rad_to_degrees(rad):
     return rad*180/math.pi
@@ -128,7 +128,7 @@ async def run():
     AGL = 10 #TODO should be given
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
-    asyncio.ensure_future(gz_sub.connect()) #connects 
+    asyncio.ensure_future(gz_sub.connect()) #connects with lidar
 
     while abs(x-dest_lat) > 0.1 or abs(y-dest_lon) > 0.1: #if far, move
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
