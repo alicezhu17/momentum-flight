@@ -15,6 +15,15 @@ Copy paste file
 
 Click 'Commit new file'
 
+### Tasks ###
+Goal: Super basic reactionary alg: if middle sensors are close to obstacle, go up. else, go straight
+
+2. Distance pointing down: given lidar_data, use orientation to figure out which index is pointing down and this distance
+
+3. Math for alg: currently have random numbers for how much forward or up drone should go. need to put in more reasonable numbers
+
+3. Test: that program runs on remote terminal
+
 ### To Do ###
 1. Read the [Momentum Code Notes](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing) to understand how to interact with the software in Python. You can skip page 1 
 
