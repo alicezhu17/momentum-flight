@@ -8,24 +8,34 @@ import pygazebo
 import pygazebo.msg.v11.laserscan_stamped_pb2
 import math
 
-#i think this is the structure
 #new code (portion not copied) located in calc_z_coord and lines 104-123
 
 def rad_to_degrees(rad):
-    
-    return rad*180/pi
-#DONE
+    return rad*180/math.pi
+
 def degrees_to_rad(deg):
-    
-    return deg*pi/180
-#DONE
-def calc_z_coord(data):
-    dis = data.scan.ranges[140] #TODO which index is pointing down?
+    return deg*math.pi/180
+
+def calc_deltaz(data):
+    '''Given lidar data as "data"
+    Return positive change in z coordinate "deltaz"
+    '''
+    dis = dis_pointing_down(data) #TODO which index is pointing down? or lidar_data.range_min for closest distance
     deltaz = 0
-    if abs(dis-AGL) < 1:
+    if abs(dis-AGL) < 1: #if distance is below a random number
         deltaz = 3 #increase altitude by random number
     return deltaz
 
+def dis_pointing_down(data):
+    '''Given lidar data as "data"
+    Use orientation to calculate the index i of data.scan.ranges[i] that points down and
+    Return the distance of data.scan.ranges[i] "dis"
+
+    Note: I think data.scan.ranges[8x20=160] points down if orientation is normal
+    '''
+    i = 0 #TODO use orientation to calculate index i that points down
+    dis = data.scan.ranges[i]
+    return dis
 
 # copied from lidar_read.py
 # This is the gazebo master from PX4 message `[Msg] Connected to gazebo master @ http://127.0.0.1:11345`
@@ -101,33 +111,39 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
+    '''
     #copied from mavsdk goto.py
+    #leave commented, thought we needed this but seems to break code
     print("-- Arming")
     await drone.action.arm()
 
     print("-- Taking off")
     await drone.action.takeoff()
+    '''
 
     #MAIN PART OF CODE
     max_alt = 5 
     dest_lat,dest_lon = None, None #TODO should be given
     x,y = home_lat, home_lon
-    AGL = 10 #TODO  should be given
+    AGL = 10 #TODO should be given
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
-    asyncio.ensure_future(gz_sub.connect())
+    asyncio.ensure_future(gz_sub.connect()) #connects 
+
     while abs(x-dest_lat) > 0.1 or abs(y-dest_lon) > 0.1: #if far, move
-        data = await gz_sub.get_LaserScanStamped()
+        data = await gz_sub.get_LaserScanStamped() #gets lidar_data
+        #print(data) #will print data when program is run
+
         x = data.scan.world_pose.position.x #TODO get current x, y, z
         y = data.scan.world_pose.position.y 
         z = data.scan.world_pose.position.z 
-        deltaz = calc_z_coord(data)
+        deltaz = calc_deltaz(data)
         z += deltaz
-        x += math.copysign(1, dest_lat-x)*5 #goes 5m in direc of dest i think
-        y += math.copysign(1, dest_lat-x)*5
-        await drone.action.goto_location(x,y,z)
+        x += math.copysign(1, dest_lat-x)*5 #goes 5 "units" in direc of dest 
+        y += math.copysign(1, dest_lon-y)*5
+        await drone.action.goto_location(x,y,z,0)
 
-    drone.action.goto_location(dest_lat,dest_lon,0) #land if close
+    await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close
 
     '''#not sure if this portion needed if we use goto function
     #rest copied from demo_mission.py
