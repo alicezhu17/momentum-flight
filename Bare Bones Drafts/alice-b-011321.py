@@ -31,7 +31,7 @@ async def run():
     
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = None, None #should be given
+    dest_lat,dest_lon = 5, 5 #should be given
 
     mission_items = []
     # append (home_lat,home_lon,max_alt), 
