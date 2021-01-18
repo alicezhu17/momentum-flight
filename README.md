@@ -18,11 +18,11 @@ Click 'Commit new file'
 ### Tasks ###
 Goal for Progress Report: Super basic reactionary alg: if middle sensors are close to obstacle, go up. else, go straight
 
-1. Distance pointing down: given lidar_data, use orientation to figure out which index is pointing down and this distance
+1. dis_pointing_down(): given lidar_data, use orientation to figure out which index is pointing down and this distance
 
-2. Math for alg: currently have random numbers for how much forward or up drone should go. need to put in more reasonable numbers
+2. Code and math: update reactionary code so that while loop has if else statement (if middle sensors are close to obstacle, go up. else, go straight). Also, we currently have random numbers for how much forward or up drone should go. Need to look into the units and put in more reasonable numbers
 
-3. Test: that program runs on remote terminal and take a video for progress report
+3. Test: that our programs run on remote terminal and take a video for progress report. Prepare by saving our files in the remote terminal and running the same way you would run demo_mission.py
 
 ### To Do ###
 1. Read the [Momentum Code Notes](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing) to understand how to interact with the software in Python. You can skip page 1 
