@@ -18,7 +18,7 @@ Click 'Commit new file'
 ### Tasks ###
 Goal for Progress Report: Super basic reactionary alg: if middle sensors are close to obstacle, go up. else, go straight
 
-1a. dis_pointing_down(): given lidar reading data, use "orientation" parameter and rotation matrices to figure out which index is pointing down and this distance. Remember we only need to look along the middle sensors. If this turns out to be too difficult, we can just use the maximum distance given
+1. dis_pointing_down(): given lidar reading data, use "orientation" parameter and rotation matrices to figure out which index is pointing down and this distance. Remember we only need to look along the middle sensors. If this turns out to be too difficult, we can just use the maximum distance given
 
 2a. Code: Update while loop in reactionary code, so that it has an if else statement (if middle sensors are close to obstacle, go up. else, go straight. also might need to go down if all the obstacles are far)
 
