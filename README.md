@@ -18,11 +18,13 @@ Click 'Commit new file'
 ### Tasks ###
 Goal for Progress Report: Super basic reactionary alg: if middle sensors are close to obstacle, go up. else, go straight
 
-1. dis_pointing_down(): given lidar_data, use orientation to figure out which index is pointing down and this distance. If this turns out to be too difficult, we can just use the maximum distance given
+1. dis_pointing_down(): given lidar reading data, use "orientation" parameter and rotation matrices to figure out which index is pointing down and this distance. Remember we only need to look along the middle sensors. If this turns out to be too difficult, we can just use the maximum distance given
 
-2. Code and math: update reactionary code so that while loop has if else statement (if middle sensors are close to obstacle, go up. else, go straight. also might need to go down if all the obstacles are far). Also, we currently have random numbers for how much forward or up drone should go. Need to look into the units and put in more reasonable numbers
+2a. Code: Update while loop in reactionary code, so that it has an if else statement (if middle sensors are close to obstacle, go up. else, go straight. also might need to go down if all the obstacles are far)
 
-3. Test: that our programs run on remote terminal and take a video for progress report. Prepare by saving our files in the remote terminal and running the same way you would run demo_mission.py
+2b. Numbers: We currently have random numbers for how much forward or up drone should go. Need to look into the units and put in more reasonable numbers
+
+3. Test: Run our programs on remote terminal and take a video for progress report. Do this by opening vscode and saving our files; if you save in the same location as demo_mission.py (home/Momentum etc) you can run it the same way as the Google Docs
 
 ### To Do ###
 1. Read the [Momentum Code Notes](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing) to understand how to interact with the software in Python. You can skip page 1 
