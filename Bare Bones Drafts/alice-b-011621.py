@@ -31,10 +31,11 @@ async def run():
         break
     
     #MAIN PART OF CODE
-    max_alt = 5 
-    dest_lat,dest_lon = 5, 5 #should be given
+    max_alt = 5 #meters
+    dest_lat,dest_lon = 5, 5 #should be given in degrees
 
     # goto (home_lat,home_lon,max_alt), (dest_lat,dest_lon,max_alt), (dest_lat,dest_lon,0)
+    # goto uses degrees, degrees, meters
     await drone.action.goto_location(home_lat,home_lon,max_alt,0) #go up
     await drone.action.set_maximum_speed(3) #max ascent velo
 
