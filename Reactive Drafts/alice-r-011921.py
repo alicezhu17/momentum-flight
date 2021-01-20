@@ -9,11 +9,11 @@ import pygazebo.msg.v11.laserscan_stamped_pb2
 import math
 
 # approximation assume 1 degree = 111000m
-def deg_to_m(d)
+def deg_to_m(d):
     m = d*111000
     return m 
 
-def m_to_deg(m)
+def m_to_deg(m):
     d = m/111000
     return d
 
