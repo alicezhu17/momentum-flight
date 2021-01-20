@@ -23,7 +23,7 @@ Goal for Progress Report: Super basic reactionary alg: if middle sensors are clo
 
 2. Code: Update while loop in reactionary code, so that it has an if elif else statement (if middle sensors are close to obstacle, go up. elif far, go down. else, go straight)
 
-3. Numbers: convert between degrees for lat/lon and meters. Also we currently have random numbers for how much forward or up drone should go. Can look into the units and put in more reasonable numbers later
+3. Numbers: convert between degrees for lat/lon and meters with approximation from tutorial. Also we currently have random numbers for how much forward or up drone should go. Can look into the units and put in more reasonable numbers later
 
 4. Test: Run our programs on remote terminal and take a video for progress report. Do this by opening vscode and saving our files; if you save in the same location as demo_mission.py (home/Momentum etc) you can run it the same way as the Google Docs
 
