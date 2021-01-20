@@ -129,15 +129,12 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
-    '''
+    
     #copied from mavsdk goto.py
-    #leave commented, thought we needed this but seems to break code
-    print("-- Arming")
+    #we need this but seems to break code
     await drone.action.arm()
-
-    print("-- Taking off")
     await drone.action.takeoff()
-    '''
+    
 
     #MAIN PART OF CODE
     max_alt = 5 
@@ -153,9 +150,9 @@ async def run():
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
         #print(data) #will print data when program is run
 
-        x = data.scan.world_pose.position.x #get current x, y, z #TODO assume in degrees, convert if nec
-        y = data.scan.world_pose.position.y 
-        z = data.scan.world_pose.position.z 
+        x = m_to_deg(data.scan.world_pose.position.x) #position in meters, need convert
+        y = m_to_deg(data.scan.world_pose.position.y) 
+        z = m_to_deg(data.scan.world_pose.position.z) 
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
@@ -180,6 +177,7 @@ async def run():
         await drone.action.goto_location(x,y,z,0) #degrees, degrees, meters
 
     await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close
+
 
     '''
     #pseudocode
