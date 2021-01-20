@@ -10,13 +10,17 @@ import math
 
 #new code (portion not copied) located in calc_z_coord and lines 124-146
 
-def deg_to_m(deg)
+# changes from meters to degrees and vice versa
+# approximation assume 1 degree = 111000m
+def deg_to_m(d)
     #TODO Jose
-    return
+    m = d*111000
+    return m 
 
 def m_to_deg(m)
     #TODO Jose
-    return
+    d = m/111000
+    return d
 
 def middle_range_min(data):
     '''Given lidar data as "data"
