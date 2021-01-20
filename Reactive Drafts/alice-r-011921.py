@@ -129,13 +129,6 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
-    
-    #copied from mavsdk goto.py
-    #we need this but seems to break code
-    await drone.action.arm()
-    await drone.action.takeoff()
-    
-
     #MAIN PART OF CODE
     max_alt = 5 
     dest_lat,dest_lon = home_lat + 0.0001, home_lon + 0.0001 #TODO given, assume in degrees, convert if nec
@@ -144,6 +137,18 @@ async def run():
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
+    
+    '''
+    data = await gz_sub.get_LaserScanStamped()
+
+    print("-- Arming")
+    await drone.action.arm()
+
+    print("-- Taking off")
+    await drone.action.takeoff()
+
+    await asyncio.sleep(1)
+    '''
 
     landing_dis = m_to_deg(0.5)
     while abs(x-dest_lat) > landing_dis and abs(y-dest_lon) > landing_dis: #if far, move 
@@ -159,14 +164,17 @@ async def run():
         if closest_obs<AGL:#if close, go up. if < 4
             deltazm = 2
             await drone.action.set_maximum_speed(3) #max ascent velo
+            print("drone up at", round(x,5),round(y,5),round(z,5))
         elif 2*AGL<closest_obs:#if far, go down. if > 8
             deltazm = -1
             await drone.action.set_maximum_speed(1) #max descent velo
+            print("drone down at", round(x,5),round(y,5),round(z,5))
         else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
             #landscape is at most 40*sqrt(2), to move at most 4m need to multiply by .07
-            deltaxm = (dest_lat-home_lat)*.07
-            deltaym = (dest_long-home_long)*.07          
+            deltaxm = deg_to_m((dest_lat-home_lat)*.07)
+            deltaym = deg_to_m((dest_lon-home_lon)*.07)          
             await drone.action.set_maximum_speed(12) #max hori velo   
+            print("drone horiz at", round(x,5),round(y,5),round(z,5))
             
         deltax = m_to_deg(deltaxm) #degrees
         deltay = m_to_deg(deltaym) #degrees
@@ -175,8 +183,11 @@ async def run():
         y += math.copysign(1, dest_lon-y)*deltay #degrees
         z += deltaz #meters
         await drone.action.goto_location(x,y,z,0) #degrees, degrees, meters
+        
 
     await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close
+    print("drone down at", round(dest_lat,5),round(dest_lon,5),round(0,5))
+    print("Mission Complete")
 
 
     '''
