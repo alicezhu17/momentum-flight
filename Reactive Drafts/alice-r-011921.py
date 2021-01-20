@@ -168,7 +168,7 @@ async def run():
         elif 1.5*AGL<closest_obs:
             await drone.action.goto_location(x,y,z-2)#would it be
         else:
-            await drone.action.goto_location(x+(home_lat-dest_lat)*.1,y+(y-(home_long-dest_long)*.1,z)                   
+            await drone.action.goto_location(x+(dest_lat-home_lat)*.1,y+(y-(dest_long-home_long)*.1,z)                   
             
         #how do we know we are moving towards the destination and how do we make sure we do not pass it.
        # PSEUDOCODE
