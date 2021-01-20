@@ -16,17 +16,19 @@ Copy paste file
 Click 'Commit new file'
 
 ### Tasks ###
-Goal for Progress Report: Super basic reactionary alg: if middle sensors are close to obstacle, go up. else, go straight
+Goal for Progress Report: Super basic reactionary alg: if middle sensors are close to obstacle, go up. elif far, go down. else, go straight
 
-1. dis_pointing_down(): given lidar reading data, use "orientation" parameter and rotation matrices to figure out which index is pointing down and this distance. Remember we only need to look along the middle sensors. If this turns out to be too difficult, we can just use the maximum distance given
 
-2a. Code: Update while loop in reactionary code, so that it has an if else statement (if middle sensors are close to obstacle, go up. else, go straight. also might need to go down if all the obstacles are far)
+1. middle_range_min(): given lidar reading data, look along middle sensors to find the range min
 
-2b. Numbers: We currently have random numbers for how much forward or up drone should go. Need to look into the units and put in more reasonable numbers
+2. Code: Update while loop in reactionary code, so that it has an if elif else statement (if middle sensors are close to obstacle, go up. elif far, go down. else, go straight)
 
-3. Index: Someone to understand the order of the ranges in lidar data. LM says we can do this by print(data) (I checked that this prints the correct thing) or print(data.scan.ranges[i]) and it would be obvious. Then we can figure out whether the 0th index points at the top left
+3. Numbers: convert between degrees for lat/lon and meters. Also we currently have random numbers for how much forward or up drone should go. Can look into the units and put in more reasonable numbers later
 
 4. Test: Run our programs on remote terminal and take a video for progress report. Do this by opening vscode and saving our files; if you save in the same location as demo_mission.py (home/Momentum etc) you can run it the same way as the Google Docs
+
+5. Index: Check that the order of the ranges in lidar data is what we think
+
 
 ### To Do ###
 1. Read the [Momentum Code Notes](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing) to understand how to interact with the software in Python. You can skip page 1 
