@@ -8,15 +8,14 @@ import pygazebo
 import pygazebo.msg.v11.laserscan_stamped_pb2
 import math
 
-#new code (portion not copied) located in calc_z_coord and lines 124-146
-
-def deg_to_m(deg)
-    #TODO Jose
-    return
+# approximation assume 1 degree = 111000m
+def deg_to_m(d)
+    m = d*111000
+    return m 
 
 def m_to_deg(m)
-    #TODO Jose
-    return
+    d = m/111000
+    return d
 
 def middle_range_min(data):
     '''Given lidar data as "data"
@@ -142,69 +141,46 @@ async def run():
 
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = 10, 10 #TODO should be given
+    dest_lat,dest_lon = 10, 10 #TODO should be given, units?
     x,y = home_lat, home_lon
-    AGL = 10 #TODO should be given
+    AGL = 4 #TODO should be given
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
 
-    while abs(x-dest_lat) > 0.1 and abs(y-dest_lon) > 0.1: #if far, move #TODO Jose, pick a better number for 0.1, these are in degrees
+    while abs(x-dest_lat) > 0.1 and abs(y-dest_lon) > 0.1: #if far, move #TODO check number reasonable
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
         #print(data) #will print data when program is run
 
-        x = data.scan.world_pose.position.x #get current x, y, z #TODO Alice, assume in degrees, I will fix if necessary later
+        x = data.scan.world_pose.position.x #get current x, y, z #TODO assume in degrees, check
         y = data.scan.world_pose.position.y 
         z = data.scan.world_pose.position.z 
         closest_obs = middle_range_min(data) #meters
         
-        
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
-        #TODO Alonso place if elif else, see Alonso pseudocode below
-     
-        #AGL is the desired level
-        if closest_obs<.5*AGL:
-            await drone.action.goto_location(x,y,z+2)#arbitrary amount to drop down, dont want to go too low on AGL
-        elif 1.5*AGL<closest_obs:
-            await drone.action.goto_location(x,y,z-2)#would it be
-        else:
-            await drone.action.goto_location(x+(home_lat-dest_lat)*.1,y+(y-(home_long-dest_long)*.1,z)                   
+        if closest_obs<AGL:#if close, go up. if < 4
+            deltazm = 2
+            async set_maximum_speed(3)
+        elif 2*AGL<closest_obs:#if far, go down. if > 8
+            deltazm = -1
+            async set_maximum_speed(1)
+        else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
+            deltaxm = 2.8
+            deltaym = 2.8          
+            async set_maximum_speed(12)   
             
-        #how do we know we are moving towards the destination and how do we make sure we do not pass it.
-       # PSEUDOCODE
-        if far from destination:
-            move a lot
-        elif kinda close:
-            move a medium amount
-        if close:
-            move a tiny bit because the tolerance on Alices function above is .1m
-
-
-        #TODO Jose, this should work but glance to see this makes sense for you
         deltax = m_to_deg(deltaxm) #degrees
         deltay = m_to_deg(deltaym) #degrees
         deltaz = deltazm #meters
-        #End TODO Jose
-
-        #TODO Alonso set x,y,z in meters depending on if elif else above
-        x = 0 #TODO degrees
-        y = 0 #TODO degrees#I believe this is done since I updated them in my if else
-        z = 0 #TODO meters
-        '''
-        #Alonso note: not sure if if difficult to figure out which direction is destination, so this old code might be correct? check copysign() documentation
-        z += deltaz
         x += math.copysign(1, dest_lat-x)*deltax #goes deltax "units" in direc of dest 
-        y += math.copysign(1, dest_lon-y)*deltay#wtf is this
-        '''
-        #End Alonso TODO
-
+        y += math.copysign(1, dest_lon-y)*deltay #degrees
+        z += deltaz #meters
         await drone.action.goto_location(x,y,z,0) #degrees, degrees, meters
 
     await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close
 
     '''
-    #Alonso pseudocode
-    
+    #pseudocode
     if close to obstacle: #closest_obs < some_random_number
         go up, set deltazm to something
     elif far:
@@ -212,11 +188,17 @@ async def run():
     else:
         go straight, set deltaxm and deltaym to something
     
-    x = something
-    y = something
-    z = something
     '''
 
+    '''
+    # PSEUDOCODE
+    if far from destination:
+        move a lot
+    elif kinda close:
+        move a medium amount
+    if close:
+        move a tiny bit because the tolerance on Alices function above is .1m
+    '''
 
     '''#don't think this portion needed if we use goto function
     #rest copied from demo_mission.py
