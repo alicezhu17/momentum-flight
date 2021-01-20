@@ -30,12 +30,13 @@ async def run():
         break
     
     #MAIN PART OF CODE
-    max_alt = 5 
-    dest_lat,dest_lon = 5, 5 #should be given
+    max_alt = 5 #meters
+    dest_lat,dest_lon = 5, 5 #should be given in degrees
 
-    mission_items = []
-    # append (home_lat,home_lon,max_alt), 
-    # (dest_lat,dest_lon,max_alt), (dest_lat,dest_lon,0)
+    mission_items = [] #uses degrees, degrees, meters
+    # (home_lat,home_lon,max_alt) go up
+    # (dest_lat,dest_lon,max_alt) go down
+    # (dest_lat,dest_lon,0) go down
     mission_items.append(MissionItem(home_lat,
                                      home_lon,
                                      max_alt,
