@@ -141,18 +141,19 @@ async def run():
 
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = 10, 10 #TODO should be given, units?
-    x,y = home_lat, home_lon
+    dest_lat,dest_lon = 10, 10 #TODO given, convert to deg if nec
+    x,y = home_lat, home_lon #deg
     AGL = 4 #TODO should be given
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
 
-    while abs(x-dest_lat) > 0.1 and abs(y-dest_lon) > 0.1: #if far, move #TODO check number reasonable
+    landing_dis = m_to_deg(0.5)
+    while abs(x-dest_lat) > landing_dis and abs(y-dest_lon) > landing_dis: #if far, move 
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
         #print(data) #will print data when program is run
 
-        x = data.scan.world_pose.position.x #get current x, y, z #TODO assume in degrees, check
+        x = data.scan.world_pose.position.x #get current x, y, z #TODO assume in degrees, convert if nec
         y = data.scan.world_pose.position.y 
         z = data.scan.world_pose.position.z 
         closest_obs = middle_range_min(data) #meters
@@ -160,14 +161,15 @@ async def run():
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
         if closest_obs<AGL:#if close, go up. if < 4
             deltazm = 2
-            async set_maximum_speed(3)
+            await drone.action.set_maximum_speed(3) #max ascent velo
         elif 2*AGL<closest_obs:#if far, go down. if > 8
             deltazm = -1
-            async set_maximum_speed(1)
+            await drone.action.set_maximum_speed(1) #max descent velo
         else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
-            deltaxm = 2.8
-            deltaym = 2.8          
-            async set_maximum_speed(12)   
+            #landscape is at most 40*sqrt(2), to move at most 4m need to multiply by .07
+            deltaxm = (dest_lat-home_lat)*.07
+            deltaym = (dest_long-home_long)*.07          
+            await drone.action.set_maximum_speed(12) #max hori velo   
             
         deltax = m_to_deg(deltaxm) #degrees
         deltay = m_to_deg(deltaym) #degrees
