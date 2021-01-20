@@ -130,6 +130,8 @@ async def run():
         break
     
     #MAIN PART OF CODE
+    print(home_alt,home_lat,home_lon)
+    
     max_alt = 5 
     dest_lat,dest_lon = home_lat + 0.0001, home_lon + 0.0001 #TODO given, assume in degrees, convert if nec
     x,y = home_lat, home_lon #degrees
@@ -138,8 +140,9 @@ async def run():
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
     
-    '''
-    data = await gz_sub.get_LaserScanStamped()
+
+    
+    #data = await gz_sub.get_LaserScanStamped()
 
     print("-- Arming")
     await drone.action.arm()
@@ -148,31 +151,32 @@ async def run():
     await drone.action.takeoff()
 
     await asyncio.sleep(1)
-    '''
-
-    landing_dis = m_to_deg(0.5)
+    
+    moves = 0
+    landing_dis = m_to_deg(1)
     while abs(x-dest_lat) > landing_dis and abs(y-dest_lon) > landing_dis: #if far, move 
+        moves += 1
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
         #print(data) #will print data when program is run
 
-        x = m_to_deg(data.scan.world_pose.position.x) #position in meters, need convert
+        x = m_to_deg(data.scan.world_pose.position.x) #converted to degrees
         y = m_to_deg(data.scan.world_pose.position.y) 
         z = m_to_deg(data.scan.world_pose.position.z) 
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
         if closest_obs<AGL:#if close, go up. if < 4
-            deltazm = 2
+            deltazm = 4
             await drone.action.set_maximum_speed(3) #max ascent velo
             print("drone up at", round(x,5),round(y,5),round(z,5))
-        elif 2*AGL<closest_obs:#if far, go down. if > 8
+        elif 1.25*AGL<closest_obs:#if far, go down. if > 8
             deltazm = -1
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
             #landscape is at most 40*sqrt(2), to move at most 4m need to multiply by .07
-            deltaxm = deg_to_m((dest_lat-home_lat)*.07)
-            deltaym = deg_to_m((dest_lon-home_lon)*.07)          
+            deltaxm = deg_to_m((dest_lat-home_lat)*.15) #experiment
+            deltaym = deg_to_m((dest_lon-home_lon)*.15)          
             await drone.action.set_maximum_speed(12) #max hori velo   
             print("drone horiz at", round(x,5),round(y,5),round(z,5))
             
@@ -186,7 +190,10 @@ async def run():
         
 
     await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close
+    data = await gz_sub.get_LaserScanStamped()
     print("drone down at", round(dest_lat,5),round(dest_lon,5),round(0,5))
+    print("Total moves is", moves)
+    print("Current time is ", data.time.sec," seconds")
     print("Mission Complete")
 
 
