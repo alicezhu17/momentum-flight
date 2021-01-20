@@ -37,6 +37,16 @@ def dis_pointing_down(data):
     dis = data.scan.ranges[i]
     return dis
 
+#changes from meters to degrees and vice versa
+# approximation assume 1 degree = 111000m
+def m_to_degree(m):
+    d = m/111000
+    return d
+
+def degree_to_m(d):
+    m = d*111000
+    return m 
+
 # copied from lidar_read.py
 # This is the gazebo master from PX4 message `[Msg] Connected to gazebo master @ http://127.0.0.1:11345`
 HOST, PORT = "127.0.0.1", 11345
