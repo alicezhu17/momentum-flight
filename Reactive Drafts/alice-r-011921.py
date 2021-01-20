@@ -141,7 +141,7 @@ async def run():
 
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = 10, 10 #TODO given, assume in degrees, convert  if nec
+    dest_lat,dest_lon = home_lat + 0.0001, home_lon + 0.0001 #TODO given, assume in degrees, convert if nec
     x,y = home_lat, home_lon #degrees
     AGL = 4 #TODO should be given, meters
 
