@@ -35,9 +35,14 @@ async def run():
     dest_lat,dest_lon = 5, 5 #should be given
 
     # goto (home_lat,home_lon,max_alt), (dest_lat,dest_lon,max_alt), (dest_lat,dest_lon,0)
-    await drone.action.goto_location(home_lat,home_lon,max_alt,0)
-    await drone.action.goto_location(dest_lat,dest_lon,max_alt,0)
-    await drone.action.goto_location(dest_lat,dest_lon,0,0)
+    await drone.action.goto_location(home_lat,home_lon,max_alt,0) #go up
+    await drone.action.set_maximum_speed(3) #max ascent velo
+
+    await drone.action.goto_location(dest_lat,dest_lon,max_alt,0) #go straight
+    await drone.action.set_maximum_speed(1) #max descent velo
+
+    await drone.action.goto_location(dest_lat,dest_lon,0,0) #go down
+    await drone.action.set_maximum_speed(12) #max hori velo 
 
 async def inject_pt(drone, mission_items, home_alt, home_lat, home_lon):
     pt_injected = False
