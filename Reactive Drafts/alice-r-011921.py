@@ -10,17 +10,13 @@ import math
 
 #new code (portion not copied) located in calc_z_coord and lines 124-146
 
-# changes from meters to degrees and vice versa
-# approximation assume 1 degree = 111000m
-def deg_to_m(d)
+def deg_to_m(deg)
     #TODO Jose
-    m = d*111000
-    return m 
+    return
 
 def m_to_deg(m)
     #TODO Jose
-    d = m/111000
-    return d
+    return
 
 def middle_range_min(data):
     '''Given lidar data as "data"
@@ -165,7 +161,23 @@ async def run():
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
         #TODO Alonso place if elif else, see Alonso pseudocode below
-
+     
+        #AGL is the desired level
+        if closest_obs<.5*AGL:
+            await drone.action.goto_location(x,y,z+2)#arbitrary amount to drop down, dont want to go too low on AGL
+        elif 1.5*AGL<closest_obs:
+            await drone.action.goto_location(x,y,z-2)#would it be
+        else:
+            await drone.action.goto_location(x+(home_lat-dest_lat)*.1,y+(y-(home_long-dest_long)*.1,z)                   
+            
+        #how do we know we are moving towards the destination and how do we make sure we do not pass it.
+       # PSEUDOCODE
+        if far from destination:
+            move a lot
+        elif kinda close:
+            move a medium amount
+        if close:
+            move a tiny bit because the tolerance on Alices function above is .1m
 
 
         #TODO Jose, this should work but glance to see this makes sense for you
@@ -176,13 +188,13 @@ async def run():
 
         #TODO Alonso set x,y,z in meters depending on if elif else above
         x = 0 #TODO degrees
-        y = 0 #TODO degrees
+        y = 0 #TODO degrees#I believe this is done since I updated them in my if else
         z = 0 #TODO meters
         '''
         #Alonso note: not sure if if difficult to figure out which direction is destination, so this old code might be correct? check copysign() documentation
         z += deltaz
         x += math.copysign(1, dest_lat-x)*deltax #goes deltax "units" in direc of dest 
-        y += math.copysign(1, dest_lon-y)*deltay
+        y += math.copysign(1, dest_lon-y)*deltay#wtf is this
         '''
         #End Alonso TODO
 
