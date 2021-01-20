@@ -141,9 +141,9 @@ async def run():
 
     #MAIN PART OF CODE
     max_alt = 5 
-    dest_lat,dest_lon = 10, 10 #TODO given, convert to deg if nec
-    x,y = home_lat, home_lon #deg
-    AGL = 4 #TODO should be given
+    dest_lat,dest_lon = 10, 10 #TODO given, assume in degrees, convert  if nec
+    x,y = home_lat, home_lon #degrees
+    AGL = 4 #TODO should be given, meters
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
