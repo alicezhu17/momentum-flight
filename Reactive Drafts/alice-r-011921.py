@@ -24,11 +24,11 @@ def middle_range_min():
     Middle sensors should be index 9, 29 etc (check)
     data.scan.ranges[some index] to access
     '''
-    range_min = []
+    middle_range = []
     for i in range(0, 91, 9):
-        range_min.append(lidar_data.scanranges[i])
-    middle_min = min(range_min)
-    return middle_min
+        middle_range.append(lidar_data.scanranges[i])
+    range_min = min(middle_range)
+    return range_min
 
 
 def rad_to_degrees(rad):
