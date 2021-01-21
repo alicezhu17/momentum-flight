@@ -25,7 +25,7 @@ def middle_range_min():
     data.scan.ranges[some index] to access
     '''
     middle_range = []
-    for i in range(0, 91, 9):
+    for i in range(9, 180, 20):
         middle_range.append(lidar_data.scanranges[i])
     range_min = min(middle_range)
     return range_min
