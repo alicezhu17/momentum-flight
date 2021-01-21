@@ -138,7 +138,7 @@ async def run():
     max_alt = 5 
     dest_lat,dest_lon = home_lat + 0.0001, home_lon + 0.0001 #TODO given, assume in degrees, convert if nec
     x,y = home_lat, home_lon #degrees
-    AGL = 4 #TODO should be given, meters
+    #AGL = 4 #TODO should be given, meters
 
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
@@ -168,11 +168,11 @@ async def run():
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
-        if closest_obs<AGL:#if close, go up. if < 4
+        if closest_obs<4:#if close, go up. if < 4
             deltazm = 4
             await drone.action.set_maximum_speed(3) #max ascent velo
             print("drone up at", round(x,5),round(y,5),round(z,5))
-        elif 1.25*AGL<closest_obs:#if far, go down. if > 8
+        elif 8<closest_obs:#if far, go down. if > 8
             deltazm = -1
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
