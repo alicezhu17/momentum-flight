@@ -17,15 +17,18 @@ def m_to_deg(m):
     d = m/111000
     return d
 
-def middle_range_min(data):
+def middle_range_min():
     '''Given lidar data as "data"
     Return range_min of middle sensors in meters
     
     Middle sensors should be index 9, 29 etc (check)
     data.scan.ranges[some index] to access
     '''
-    #TODO Rachel
-    return
+    range_min = []
+    for i in range(0, 91, 9):
+        range_min.append(lidar_data.scanranges[i])
+    middle_min = min(range_min)
+    return middle_min
 
 
 def rad_to_degrees(rad):
