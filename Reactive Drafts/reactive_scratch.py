@@ -168,12 +168,12 @@ async def run():
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
-        if closest_obs<3:#if close, go up. if < 4 #.75AGL, WIDENS THE "ACCEPTABLE RANGE"
-            deltazm = 2 #CORRESPONDS TO INCREASING BY .5*AG
+        if closest_obs<2.25:#if close, go up. if < 4 #.75AGL, WIDENS THE "ACCEPTABLE RANGE"
+            deltazm = 1.5 #CORRESPONDS TO INCREASING BY .5*AG
             await drone.action.set_maximum_speed(3) #max ascent velo
             print("drone up at", round(x,5),round(y,5),round(z,5))
-        elif 8<closest_obs:#if far, go down. if > 8#CORRESPONS TO 2*AGL 
-            deltazm = -2 #CORRESPONDS TO DECREASING BY .5AGL
+        elif 6<closest_obs:#if far, go down. if > 8#CORRESPONS TO 2*AGL 
+            deltazm = -2.25 #CORRESPONDS TO DECREASING BY .75AGL
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
