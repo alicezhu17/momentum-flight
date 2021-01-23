@@ -19,7 +19,7 @@ N/A
 
 Experiment with conditional for better AGL (so drone goes down) and time
 
-
+See Google Docs for more instructions
 
 ### Resources ###
 [Momentum Code Notes Google Docs](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing)
