@@ -173,7 +173,7 @@ async def run():
             await drone.action.set_maximum_speed(3) #max ascent velo
             print("drone up at", round(x,5),round(y,5),round(z,5))
         elif 6<closest_obs:#if far, go down. if > 8#CORRESPONS TO 2*AGL 
-            deltazm = -2.25 #CORRESPONDS TO DECREASING BY .75AGL
+            deltazm = -1.5 #CORRESPONDS TO DECREASING BY .5AGL
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
