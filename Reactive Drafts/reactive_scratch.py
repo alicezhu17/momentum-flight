@@ -110,8 +110,7 @@ async def run():
     max_alt = 5 
     dest_lat,dest_lon = home_lat + 0.0001, home_lon + 0.0001 #TODO given, assume in degrees, convert if nec
     x,y = home_lat, home_lon #degrees
-    #AGL = 4 #TODO should be given, meters
-    #ALL THE NUMBERS BELOW ASSUME AGL IS 4, SO IF A NUMBER SAYS 3, IT REALLY JUST MEANS .75*AGL
+    AGL = 3 #TODO should be given, meters
     
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
@@ -119,10 +118,8 @@ async def run():
 
     print("-- Arming")
     await drone.action.arm()
-
     print("-- Taking off")
     await drone.action.takeoff()
-
     await asyncio.sleep(1)
     
     moves = 0
@@ -130,7 +127,6 @@ async def run():
     while abs(x-dest_lat) > landing_dis and abs(y-dest_lon) > landing_dis: #if far, move 
         moves += 1
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
-        #print(data) #will print data when program is run
 
         x = m_to_deg(data.scan.world_pose.position.x) #converted to degrees
         y = m_to_deg(data.scan.world_pose.position.y) 
@@ -138,12 +134,12 @@ async def run():
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
-        if closest_obs<2.25:#if close, go up. if < 4 #.75AGL, WIDENS THE "ACCEPTABLE RANGE"
-            deltazm = 1.5 #CORRESPONDS TO INCREASING BY .5*AG
+        if closest_obs<2.25:#if close, go up. if < .75AGL for AGL=3
+            deltazm = 1.5 #.5*AGL
             await drone.action.set_maximum_speed(3) #max ascent velo
             print("drone up at", round(x,5),round(y,5),round(z,5))
-        elif 6<closest_obs:#if far, go down. if > 8#CORRESPONS TO 2*AGL 
-            deltazm = -1.5 #CORRESPONDS TO DECREASING BY .5AGL
+        elif 6<closest_obs:#if far, go down. if > 2*AGL 
+            deltazm = -1.5 #.5AGL
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
