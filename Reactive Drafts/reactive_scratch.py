@@ -21,7 +21,7 @@ def middle_range_min(data):
     '''Given lidar data as "data"
     Return range_min of middle sensors in meters
     
-    Middle sensors should be index 9, 29 etc (check)
+    Middle sensors should be index 9, 29 etc
     data.scan.ranges[some index] to access
     '''
     middle_range = []
@@ -29,34 +29,6 @@ def middle_range_min(data):
         middle_range.append(data.scan.ranges[i])
     range_min = min(middle_range)
     return range_min
-
-
-def rad_to_degrees(rad):
-    return rad*180/math.pi
-
-def degrees_to_rad(deg):
-    return deg*math.pi/180
-
-def calc_deltaz(data):
-    '''Given lidar data as "data"
-    Return positive change in z coordinate "deltaz"
-    '''
-    dis = dis_pointing_down(data) #TODO which index is pointing down? or lidar_data.range_min for closest distance
-    deltaz = 0
-    if abs(dis-AGL) < 1: #if distance is below a random number
-        deltaz = 3 #increase altitude by random number
-    return deltaz
-
-def dis_pointing_down(data):
-    '''Given lidar data as "data"
-    Use orientation to calculate the index i of data.scan.ranges[i] that points down and
-    Return the distance of data.scan.ranges[i] "dis"
-
-    Note: I think data.scan.ranges[8x20=160] points down if orientation is normal
-    '''
-    i = 0 #TODO use orientation to calculate index i that points down
-    dis = data.scan.ranges[i]
-    return dis
 
 # copied from lidar_read.py
 # This is the gazebo master from PX4 message `[Msg] Connected to gazebo master @ http://127.0.0.1:11345`
@@ -140,11 +112,9 @@ async def run():
     x,y = home_lat, home_lon #degrees
     #AGL = 4 #TODO should be given, meters
     #ALL THE NUMBERS BELOW ASSUME AGL IS 4, SO IF A NUMBER SAYS 3, IT REALLY JUST MEANS .75*AGL
+    
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
-    
-
-    
     #data = await gz_sub.get_LaserScanStamped()
 
     print("-- Arming")
@@ -208,47 +178,6 @@ async def run():
         go down, set deltazm to something
     else:
         go straight, set deltaxm and deltaym to something
-    
-    '''
-
-    '''
-    # PSEUDOCODE
-    if far from destination:
-        move a lot
-    elif kinda close:
-        move a medium amount
-    if close:
-        move a tiny bit because the tolerance on Alices function above is .1m
-    '''
-
-    '''#don't think this portion needed if we use goto function
-    #rest copied from demo_mission.py
-    #upload/start mission
-    inject_pt_task = asyncio.ensure_future(inject_pt(drone, mission_items, home_alt, home_lat, home_lon))
-    running_tasks = [inject_pt_task]
-    
-    termination_task = asyncio.ensure_future(observe_is_in_air(drone, running_tasks))
-    
-    mission_plan = MissionPlan(mission_items)
-    
-    print("-- Arming")
-    await drone.action.arm()
-
-    print("awaiting")
-    await asyncio.sleep(1)
-    print("awaiting done")
-
-    print("-- Uploading mission")
-    await drone.mission.upload_mission(mission_plan)
-
-    print("awaiting")
-    await asyncio.sleep(1)
-    print("awaiting done")
-
-    print("-- Starting mission")
-    await drone.mission.start_mission()
-
-    await termination_task
     '''
 
 async def inject_pt(drone, mission_items, home_alt, home_lat, home_lon):
