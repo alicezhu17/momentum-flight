@@ -109,7 +109,7 @@ async def run():
     home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
     print(home_alt,home_latm,home_lonm)
 
-    dest_lat,dest_lon = 39, deg_to_m(home_lon) 
+    dest_lat,dest_lon = 0.962, 39 
     dest_latd,dest_lond = m_to_deg(dest_lat),m_to_deg(dest_lon)
     x,y = deg_to_m(home_lat), deg_to_m(home_lon) # meters
     max_alt = 5 
@@ -145,8 +145,8 @@ async def run():
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:
-            deltaxm = (dest_lat-home_latm)/19 #meters
-            deltaym = 0 #(dest_lon-home_lonm)/19          
+            deltaxm = (dest_lon-home_lonm)/19
+            deltaym = 0 #(dest_lat-home_latm)/19           
             await drone.action.set_maximum_speed(12) #max hori velo   
             print("drone horiz at", round(x,5),round(y,5),round(z,5))
             
@@ -156,7 +156,7 @@ async def run():
         #deltaz = deltazm #meters
         
         x += deltaxm #meters
-        y += 0 
+        y += deltaym 
         z += deltazm #meters
         x = m_to_deg(x)
         y = m_to_deg(y)
