@@ -130,7 +130,7 @@ async def run():
 
         x = m_to_deg(data.scan.world_pose.position.x) #converted to degrees
         y = m_to_deg(data.scan.world_pose.position.y) 
-        z = m_to_deg(data.scan.world_pose.position.z) 
+        z = data.scan.world_pose.position.z #TODO check 
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
