@@ -104,14 +104,15 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
-    #FLIES BUT DOES SO DIAGONALLY
+    #FLIES BUT DOES SO DIAGONALLY and goes off map
     #MAIN PART OF CODE
     home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
     print(home_alt,home_latm,home_lonm)
 
-    max_alt = 5 
-    dest_lat,dest_lon = 38, deg_to_m(home_lon) #(38 0 1) meters
+    dest_lat,dest_lon = 39, deg_to_m(home_lon) 
+    dest_latd,dest_lond = m_to_deg(dest_lat),m_to_deg(dest_lon)
     x,y = deg_to_m(home_lat), deg_to_m(home_lon) # meters
+    max_alt = 5 
     AGL = 3 #meters
     
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
@@ -145,7 +146,7 @@ async def run():
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:
             deltaxm = (dest_lat-home_latm)/19 #meters
-            deltaym = 0#(dest_lon-home_lonm)/19          
+            deltaym = 0 #(dest_lon-home_lonm)/19          
             await drone.action.set_maximum_speed(12) #max hori velo   
             print("drone horiz at", round(x,5),round(y,5),round(z,5))
             
@@ -155,13 +156,13 @@ async def run():
         #deltaz = deltazm #meters
         
         x += deltaxm #meters
-        y += deltaym #
+        y += 0 
         z += deltazm #meters
         x = m_to_deg(x)
         y = m_to_deg(y)
-        await drone.action.goto_location(x,y,z,0) #degrees, degrees, meters
+        await drone.action.goto_location(x,y,z,90) #degrees, degrees, meters
 
-    await drone.action.goto_location(dest_lat,0,1,0) #land (38 0 1) when close #TODO degrees
+    await drone.action.goto_location(dest_latd,dest_lond,1,0) #land (39 1 1) when close #TODO degrees
     data = await gz_sub.get_LaserScanStamped()
     print("drone down at", round(dest_lat,3),round(dest_lon,3),round(0,3))
     print("Total moves is", moves)
