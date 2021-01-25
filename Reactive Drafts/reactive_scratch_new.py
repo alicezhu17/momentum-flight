@@ -104,14 +104,12 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
-    #goes straight but off map
     #MAIN PART OF CODE
     home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
     print(home_latm,home_lonm)
 
     dest_lat,dest_lon = 0.962, 39 #y=0.962 x=39
     dest_latd,dest_lond = m_to_deg(dest_lat),m_to_deg(dest_lon)
-    x,y = deg_to_m(home_lon), deg_to_m(home_lat) # meters
     max_alt = 5 
     AGL = 3 #meters
     
@@ -126,7 +124,9 @@ async def run():
     await asyncio.sleep(1)
 
     moves = 0
-    while x<37: #if far, move 
+    x = home_lon
+    destx = m_to_deg(35)
+    while x<destx: #if far, move 
         moves += 1
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
 
@@ -135,7 +135,7 @@ async def run():
         z = data.scan.world_pose.position.z 
         closest_obs = middle_range_min(data) #meters
         
-        deltaxm, deltaym, deltazm = 0, 0, 0 #meters
+        deltaxm, deltazm = 0, 0 #meters
         if closest_obs<2.25:#if close, go up. if < .75AGL for AGL=3
             deltazm = 1.5 #.5*AGL
             await drone.action.set_maximum_speed(3) #max ascent velo
