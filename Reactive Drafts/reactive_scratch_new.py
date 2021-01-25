@@ -104,14 +104,14 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
-    #FLIES BUT DOES SO DIAGONALLY and goes off map
+    #goes straight but off map
     #MAIN PART OF CODE
     home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
-    print(home_alt,home_latm,home_lonm)
+    print(home_latm,home_lonm)
 
-    dest_lat,dest_lon = 0.962, 39 
+    dest_lat,dest_lon = 0.962, 39 #y=0.962 x=39
     dest_latd,dest_lond = m_to_deg(dest_lat),m_to_deg(dest_lon)
-    x,y = deg_to_m(home_lat), deg_to_m(home_lon) # meters
+    x,y = deg_to_m(home_lon), deg_to_m(home_lat) # meters
     max_alt = 5 
     AGL = 3 #meters
     
@@ -126,7 +126,7 @@ async def run():
     await asyncio.sleep(1)
 
     moves = 0
-    while not (x > 37 or y > 37): #if far, move 
+    while x<37: #if far, move 
         moves += 1
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
 
@@ -145,22 +145,15 @@ async def run():
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
         else:
-            deltaxm = (dest_lon-home_lonm)/19
-            deltaym = 0 #(dest_lat-home_latm)/19           
+            deltaxm = 2
+            #deltaym = 0 #(dest_lat-home_latm)/19           
             await drone.action.set_maximum_speed(12) #max hori velo   
             print("drone horiz at", round(x,5),round(y,5),round(z,5))
             
-        
-        #deltax = m_to_deg(deltaxm) #degrees
-        #deltay = m_to_deg(deltaym) #degrees
-        #deltaz = deltazm #meters
-        
         x += deltaxm #meters
-        y += deltaym 
         z += deltazm #meters
         x = m_to_deg(x)
-        y = m_to_deg(y)
-        await drone.action.goto_location(x,y,z,90) #degrees, degrees, meters
+        await drone.action.goto_location(dest_latd,x,z,90) #degrees, degrees, meters #lat=y,lon=x,height
 
     await drone.action.goto_location(dest_latd,dest_lond,1,0) #land (39 1 1) when close #TODO degrees
     data = await gz_sub.get_LaserScanStamped()
