@@ -104,15 +104,14 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
+    #FLIES BUT DOES SO DIAGONALLY
     #MAIN PART OF CODE
-    print(home_alt,home_lat,home_lon)
-    #NOTE MAJOR CHANGES WILL BE MADE ALL AT ONCE SOMETIME SUNDAY
-    #only experiment with if elif else statement until then
-    #no y needed for new terrain
-    
+    home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
+    print(home_alt,home_latm,home_lonm)
+
     max_alt = 5 
-    dest_lat,dest_lon = home_lat + 0.0001, home_lon + 0.0001 #TODO (38 0 1) meters
-    x,y = home_lat, home_lon #TODO meters
+    dest_lat,dest_lon = 38, deg_to_m(home_lon) #(38 0 1) meters
+    x,y = deg_to_m(home_lat), deg_to_m(home_lon) # meters
     AGL = 3 #meters
     
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
@@ -124,16 +123,15 @@ async def run():
     print("-- Taking off")
     await drone.action.takeoff()
     await asyncio.sleep(1)
-    
+
     moves = 0
-    landing_dis = m_to_deg(1) #TODO meters
-    while abs(x-dest_lat) > landing_dis and abs(y-dest_lon) > landing_dis: #if far, move 
+    while not (x > 37 or y > 37): #if far, move 
         moves += 1
         data = await gz_sub.get_LaserScanStamped() #gets lidar_data
 
-        x = m_to_deg(data.scan.world_pose.position.x) #converted to degrees #TODO meters
-        y = m_to_deg(data.scan.world_pose.position.y) 
-        z = m_to_deg(data.scan.world_pose.position.z) 
+        x = data.scan.world_pose.position.x #meters
+        y = data.scan.world_pose.position.y 
+        z = data.scan.world_pose.position.z 
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltaym, deltazm = 0, 0, 0 #meters
@@ -145,27 +143,27 @@ async def run():
             deltazm = -1.5 #.5AGL
             await drone.action.set_maximum_speed(1) #max descent velo
             print("drone down at", round(x,5),round(y,5),round(z,5))
-        else:#can move between 4-8m so at most 4m, or 4/sqrt(2)=2.8 per side
-            #landscape is at most 40*sqrt(2), to move at most 4m need to multiply by .07
-            deltaxm = deg_to_m((dest_lat-home_lat)*.15) #experiment
-            deltaym = deg_to_m((dest_lon-home_lon)*.15)          
+        else:
+            deltaxm = (dest_lat-home_latm)/19 #meters
+            deltaym = 0#(dest_lon-home_lonm)/19          
             await drone.action.set_maximum_speed(12) #max hori velo   
             print("drone horiz at", round(x,5),round(y,5),round(z,5))
             
-        deltax = m_to_deg(deltaxm) #degrees
-        deltay = m_to_deg(deltaym) #degrees
-        deltaz = deltazm #meters
-        x += math.copysign(1, dest_lat-x)*deltax #goes deltax "units" in direc of dest 
-        y += math.copysign(1, dest_lon-y)*deltay #degrees
-        z += deltaz #meters
-        #TODO add x/y and deltaxm in meters
-        #TODO convert x/y to deg
-        await drone.action.goto_location(x,y,z,0) #degrees, degrees, meters
         
+        #deltax = m_to_deg(deltaxm) #degrees
+        #deltay = m_to_deg(deltaym) #degrees
+        #deltaz = deltazm #meters
+        
+        x += deltaxm #meters
+        y += deltaym #
+        z += deltazm #meters
+        x = m_to_deg(x)
+        y = m_to_deg(y)
+        await drone.action.goto_location(x,y,z,0) #degrees, degrees, meters
 
-    await drone.action.goto_location(dest_lat,dest_lon,0,0) #land when close #TODO degrees
+    await drone.action.goto_location(dest_lat,0,1,0) #land (38 0 1) when close #TODO degrees
     data = await gz_sub.get_LaserScanStamped()
-    print("drone down at", round(dest_lat,5),round(dest_lon,5),round(0,5))
+    print("drone down at", round(dest_lat,3),round(dest_lon,3),round(0,3))
     print("Total moves is", moves)
     print("Current time is ", data.time.sec," seconds")
     print("Mission Complete")
@@ -173,12 +171,12 @@ async def run():
 
     '''
     #pseudocode
-    if close to obstacle: #closest_obs < some_random_number
-        go up, set deltazm to something
+    if close to obstacle: 
+        go up, set deltazm 
     elif far:
-        go down, set deltazm to something
+        go down, set deltazm 
     else:
-        go straight, set deltaxm and deltaym to something
+        go straight, set deltaxm 
     '''
 
 async def inject_pt(drone, mission_items, home_alt, home_lat, home_lon):
