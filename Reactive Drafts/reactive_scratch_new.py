@@ -30,6 +30,22 @@ def middle_range_min(data):
     range_min = min(middle_range)
     return range_min
 
+def middle_range(data):
+    return [data.scan.ranges[i] for i in range(9, 180, 20)]
+
+def front_range(data):
+    return data.scan.ranges[169]
+
+def second_range(data):
+    return data.scan.ranges[149]
+
+def third_range(data):
+    return data.scan.ranges[129]   
+
+def back_range(data):
+    back = [data.scan.ranges[i] for i in range(9, 60, 20)]
+    return min(back)
+
 # copied from lidar_read.py
 # This is the gazebo master from PX4 message `[Msg] Connected to gazebo master @ http://127.0.0.1:11345`
 HOST, PORT = "127.0.0.1", 11345
@@ -106,7 +122,7 @@ async def run():
     
     #MAIN PART OF CODE
     home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
-    print(home_latm,home_lonm)
+    print(round(home_latm,3),round(home_lonm,3))
 
     dest_lat,dest_lon = 0.962, 39 #y=0.962 x=39
     dest_latd,dest_lond = m_to_deg(dest_lat),m_to_deg(dest_lon)
@@ -115,13 +131,18 @@ async def run():
     
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
-    #data = await gz_sub.get_LaserScanStamped()
+    data = await gz_sub.get_LaserScanStamped()
 
     print("-- Arming")
     await drone.action.arm()
     print("-- Taking off")
     await drone.action.takeoff()
     await asyncio.sleep(1)
+
+    lastx = 1
+    totz = 0
+    zmoves = 0
+    start_time = data.time.sec
 
     moves = 0
     x = home_lon
@@ -136,42 +157,56 @@ async def run():
         closest_obs = middle_range_min(data) #meters
         
         deltaxm, deltazm = 0, 0 #meters
-        if closest_obs<2:#if close, go up
-            deltazm = 1.5 #.5*AGL
-            await drone.action.set_maximum_speed(3) #max ascent velo
-            print("drone up at", round(x,5),round(y,5),round(z,5))
-        elif 4<closest_obs:#if far, go down 
+        
+        #if max(back_range(data),third_range(data)) < 4: #last working was 4, 2.5 was almost crash  
+        if abs(back_range(data)-third_range(data)) < 1:
+            deltazm = 1.5
+            deltaxm = 2.5 
+            await drone.action.set_maximum_speed(12) #max hori velo
+            print("drone diag at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
+
+
+            '''
+            #elif closest_obs<2:# and z<5.7:#if close, go up
+            elif front_range(data)<2:# and z<5.7:#if close, go up
+                deltazm = 1.5 #.5*AGL
+                await drone.action.set_maximum_speed(3) #max ascent velo
+                print("drone up at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
+            '''
+        elif 3.5<closest_obs:#if far, go down 
             deltazm = -1.5 #.5AGL
             await drone.action.set_maximum_speed(1) #max descent velo
-            print("drone down at", round(x,5),round(y,5),round(z,5))
+            print("drone down at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
         else:
             deltaxm = 2
             #deltaym = 0 #(dest_lat-home_latm)/19           
             await drone.action.set_maximum_speed(12) #max hori velo   
-            print("drone horiz at", round(x,5),round(y,5),round(z,5))
+            print("drone horiz at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
             
         x += deltaxm #meters
         z += deltazm #meters
         x = m_to_deg(x)
+        #z = min(z,5.7)
         await drone.action.goto_location(dest_latd,x,z,90) #degrees, degrees, meters #lat=y,lon=x,height
 
-    await drone.action.goto_location(dest_latd,dest_lond,1,0) #land (39 1 1) when close #TODO degrees
+        #await asyncio.sleep(0.5) #TODO test if faster, maybe by one sec
+        if lastx < deg_to_m(x):
+            totz += z
+            zmoves += 1
+            lastx += 1
+
+
+    await drone.action.goto_location(dest_latd,dest_lond,1,0) #land (39 1 1) when close,degrees
     data = await gz_sub.get_LaserScanStamped()
     print("drone down at", round(dest_lat,3),round(dest_lon,3),round(0,3))
+    print("Total feet",totz,"for",zmoves,"feet")
+    print("Avg height was", round(totz/zmoves,3),"m")
     print("Total moves is", moves)
-    print("Current time is ", data.time.sec," seconds")
+    print("Current time is", data.time.sec,"seconds")
+    print("Total time is", data.time.sec-start_time,"seconds")
     print("Mission Complete")
 
 
-    '''
-    #pseudocode
-    if close to obstacle: 
-        go up, set deltazm 
-    elif far:
-        go down, set deltazm 
-    else:
-        go straight, set deltaxm 
-    '''
 
 async def inject_pt(drone, mission_items, home_alt, home_lat, home_lon):
     pt_injected = False
