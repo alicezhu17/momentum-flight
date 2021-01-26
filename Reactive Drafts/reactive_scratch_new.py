@@ -45,9 +45,6 @@ def third_range(data):
 def fourth_range(data):
     return data.scan.ranges[109]
 
-def fifth_range(data):
-    return data.scan.ranges[89]
-
 def back_range(data):
     back = [data.scan.ranges[i] for i in range(9, 60, 20)]
     return min(back)
@@ -164,18 +161,16 @@ async def run():
         
         deltaxm, deltazm = 0, 0 #meters
         
-        #if abs(back_range(data)-third_range(data)) < 1:
         #if max(back_range(data),third_range(data)) < 4: #4 or 3.5
+        #if abs(back_range(data)-third_range(data)) < 1:
         if abs(back_range(data)-fourth_range(data)) < 0.5:#0.5 or 0.7
             deltazm = 1.5
             deltaxm = 2.5 
             await drone.action.set_maximum_speed(12) #max hori velo
             print("drone diag at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
-
-
             '''
-            #elif closest_obs<2:# and z<5.7:#if close, go up
-            elif front_range(data)<2:# and z<5.7:#if close, go up
+            #elif front_range(data)<2:# and z<5.7:#if close, go up
+            elif closest_obs<2:# and z<5.7:#if close, go up
                 deltazm = 1.5 #.5*AGL
                 await drone.action.set_maximum_speed(3) #max ascent velo
                 print("drone up at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(abs(back_range(data)-third_range(data)),1),round(second_range(data),1),round(third_range(data),1))
@@ -196,7 +191,7 @@ async def run():
         #z = min(z,5.7)
         await drone.action.goto_location(dest_latd,x,z,90) #degrees, degrees, meters #lat=y,lon=x,height
 
-        #await asyncio.sleep(0.5) #TODO test if faster, maybe by one sec
+        #await asyncio.sleep(0.5) #test if faster, maybe by one sec
         if lastx < deg_to_m(x):
             totz += z
             zmoves += 1
@@ -206,7 +201,7 @@ async def run():
     await drone.action.goto_location(dest_latd,dest_lond,1,0) #land (39 1 1) when close,degrees
     data = await gz_sub.get_LaserScanStamped()
     print("drone down at", round(dest_lat,3),round(dest_lon,3),round(0,3))
-    print("Total feet",totz,"for",zmoves,"feet")
+    print("Total feet was",totz,"for",zmoves,"feet")
     print("Avg height was", round(totz/zmoves,3),"m")
     print("Total moves is", moves)
     print("Current time is", data.time.sec,"seconds")
