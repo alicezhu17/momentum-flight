@@ -84,6 +84,8 @@ async def run():
     #MAIN PART OF CODE
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
+    data = await gz_sub.get_LaserScanStamped()
+    start_time = data.time.sec
     
     home_latm, home_lonm = home_lat*111000, home_lon*111000
     print(home_alt,home_latm,home_lonm)
@@ -157,6 +159,7 @@ async def run():
     #Ending data
     data = await gz_sub.get_LaserScanStamped()
     print("Current time is ", data.time.sec," seconds")
+    print("Total time is", data.time.sec-start_time,"seconds")
     print("Mission complete")
 
 async def inject_pt(drone, mission_items, home_alt, home_lat, home_lon):
