@@ -42,6 +42,12 @@ def second_range(data):
 def third_range(data):
     return data.scan.ranges[129]   
 
+def fourth_range(data):
+    return data.scan.ranges[109]
+
+def fifth_range(data):
+    return data.scan.ranges[89]
+
 def back_range(data):
     back = [data.scan.ranges[i] for i in range(9, 60, 20)]
     return min(back)
@@ -158,12 +164,13 @@ async def run():
         
         deltaxm, deltazm = 0, 0 #meters
         
-        #if max(back_range(data),third_range(data)) < 4: #last working was 4, 2.5 was almost crash  
-        if abs(back_range(data)-third_range(data)) < 1:
+        #if abs(back_range(data)-third_range(data)) < 1:
+        #if max(back_range(data),third_range(data)) < 4: #4 or 3.5
+        if abs(back_range(data)-fourth_range(data)) < 0.5:#0.5 or 0.7
             deltazm = 1.5
             deltaxm = 2.5 
             await drone.action.set_maximum_speed(12) #max hori velo
-            print("drone diag at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
+            print("drone diag at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
 
 
             '''
@@ -171,17 +178,17 @@ async def run():
             elif front_range(data)<2:# and z<5.7:#if close, go up
                 deltazm = 1.5 #.5*AGL
                 await drone.action.set_maximum_speed(3) #max ascent velo
-                print("drone up at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
+                print("drone up at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(abs(back_range(data)-third_range(data)),1),round(second_range(data),1),round(third_range(data),1))
             '''
         elif 3.5<closest_obs:#if far, go down 
             deltazm = -1.5 #.5AGL
             await drone.action.set_maximum_speed(1) #max descent velo
-            print("drone down at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
+            print("drone down at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
         else:
             deltaxm = 2
             #deltaym = 0 #(dest_lat-home_latm)/19           
             await drone.action.set_maximum_speed(12) #max hori velo   
-            print("drone horiz at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(second_range(data),3),round(third_range(data),3))
+            print("drone horiz at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
             
         x += deltaxm #meters
         z += deltazm #meters
