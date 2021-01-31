@@ -8,7 +8,7 @@ import pygazebo
 import pygazebo.msg.v11.laserscan_stamped_pb2
 import math
 
-# approximation assume 1 degree = 111000m
+# approximation assumes 1 degree = 111000m
 def deg_to_m(d):
     m = d*111000
     return m 
@@ -21,26 +21,11 @@ def middle_range_min(data):
     '''Given lidar data as "data"
     Return range_min of middle sensors in meters
     
-    Middle sensors should be index 9, 29 etc
-    data.scan.ranges[some index] to access
+    Middle sensors are index 9, 29 etc
+    data.scan.ranges[index] to access
     '''
-    middle_range = []
-    for i in range(9, 180, 20):
-        middle_range.append(data.scan.ranges[i])
-    range_min = min(middle_range)
-    return range_min
-
-def middle_range(data):
-    return [data.scan.ranges[i] for i in range(9, 180, 20)]
-
-def front_range(data):
-    return data.scan.ranges[169]
-
-def second_range(data):
-    return data.scan.ranges[149]
-
-def third_range(data):
-    return data.scan.ranges[129]   
+    middle_range = [data.scan.ranges[i] for i in range(9, 180, 20)]
+    return min(middle_range)
 
 def fourth_range(data):
     return data.scan.ranges[109]
@@ -99,8 +84,7 @@ class GazeboMessageSubscriber:
 
 
 async def run():
-    #section copied from demo_mission.py
-    #connects drone
+    #connects drone from demo_mission.py
     drone = System()
     await drone.connect(system_address="udp://:14540")
 
@@ -123,25 +107,25 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
     
-    #MAIN PART OF CODE
+    #MAIN PART OF ALGORITHM
+    #max_alt = 5, AGL = 3 meters
     home_latm, home_lonm = deg_to_m(home_lat), deg_to_m(home_lon)
     print(round(home_latm,3),round(home_lonm,3))
 
-    dest_lat,dest_lon = 0.962, 39 #y=0.962 x=39
+    dest_lat,dest_lon = 0.962, 39 #y=0.962 x=39 meters
     dest_latd,dest_lond = m_to_deg(dest_lat),m_to_deg(dest_lon)
-    max_alt = 5 
-    AGL = 3 #meters
     
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
     data = await gz_sub.get_LaserScanStamped()
 
-    print("-- Arming")
+    print("-- Arming") #takeoff
     await drone.action.arm()
     print("-- Taking off")
     await drone.action.takeoff()
     await asyncio.sleep(1)
 
+    #to find average height and total time
     lastx = 1
     totz = 0
     zmoves = 0
@@ -161,38 +145,27 @@ async def run():
         
         deltaxm, deltazm = 0, 0 #meters
         
-        #if max(back_range(data),third_range(data)) < 4: #4 or 3.5
-        #if abs(back_range(data)-third_range(data)) < 1:
-        if abs(back_range(data)-fourth_range(data)) < 0.5:#0.5 or 0.7
+        if abs(back_range(data)-fourth_range(data)) < 0.5:#if bottom lidars are close in reading, go diag
             deltazm = 1.5
             deltaxm = 2.5 
-            await drone.action.set_maximum_speed(12) #max hori velo
+            await drone.action.set_maximum_speed(12) #set max hori velo
             print("drone diag at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
-            '''
-            #elif front_range(data)<2:# and z<5.7:#if close, go up
-            elif closest_obs<2:# and z<5.7:#if close, go up
-                deltazm = 1.5 #.5*AGL
-                await drone.action.set_maximum_speed(3) #max ascent velo
-                print("drone up at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds",round(abs(back_range(data)-third_range(data)),1),round(second_range(data),1),round(third_range(data),1))
-            '''
-        elif 3.5<closest_obs:#if far, go down 
-            deltazm = -1.5 #.5AGL
-            await drone.action.set_maximum_speed(1) #max descent velo
+        #elif close, go up (redundant)
+        elif 3.5<closest_obs:#elif far, go down 
+            deltazm = -1.5 
+            await drone.action.set_maximum_speed(1) #set max descent velo
             print("drone down at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
-        else:
-            deltaxm = 2
-            #deltaym = 0 #(dest_lat-home_latm)/19           
-            await drone.action.set_maximum_speed(12) #max hori velo   
+        else:#go horiz
+            deltaxm = 2         
+            await drone.action.set_maximum_speed(12) #set max hori velo   
             print("drone horiz at", round(x,3),round(y,3),round(z,3),"at",data.time.sec,"seconds")
             
         x += deltaxm #meters
         z += deltazm #meters
         x = m_to_deg(x)
-        #z = min(z,5.7)
         await drone.action.goto_location(dest_latd,x,z,90) #degrees, degrees, meters #lat=y,lon=x,height
 
-        #await asyncio.sleep(0.5) #test if faster, maybe by one sec
-        if lastx < deg_to_m(x):
+        if lastx < deg_to_m(x):#finds total height for average height
             totz += z
             zmoves += 1
             lastx += 1

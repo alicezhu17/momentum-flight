@@ -57,8 +57,7 @@ class GazeboMessageSubscriber:
             await asyncio.sleep(1)
 
 async def run():
-    #section copied from demo_mission.py
-    #connects drone
+    #connects drone from demo_mission.py
     drone = System()
     await drone.connect(system_address="udp://:14540")
 
@@ -81,7 +80,7 @@ async def run():
         home_lon = terrain_info.longitude_deg
         break
 
-    #MAIN PART OF CODE
+    #MAIN PART OF ALGORITHM
     gz_sub = GazeboMessageSubscriber(HOST, PORT)
     asyncio.ensure_future(gz_sub.connect()) #connects with lidar
     data = await gz_sub.get_LaserScanStamped()
@@ -91,11 +90,11 @@ async def run():
     print(home_alt,home_latm,home_lonm)
     
     max_alt = 5 #meters
-    dest_lat,dest_lon = 0, 39/111000 #degrees y=0 x=39
+    dest_lat,dest_lon = 0, 39/111000 #degrees, y=0 x=39 meters
 
     mission_items = [] #uses degrees, degrees, meters
     # (home_lat,home_lon,max_alt) go up
-    # (dest_lat,dest_lon,max_alt) go down
+    # (dest_lat,dest_lon,max_alt) go straight
     # (dest_lat,dest_lon,0) go down
     mission_items.append(MissionItem(home_lat,
                                      home_lon,
@@ -128,8 +127,7 @@ async def run():
                                      float('nan'),
                                      float('nan')))
     
-    #rest copied from demo_mission.py
-    #upload/start mission
+    #upload/start mission from demo_mission.py
     inject_pt_task = asyncio.ensure_future(inject_pt(drone, mission_items, home_alt, home_lat, home_lon))
     running_tasks = [inject_pt_task]
     
