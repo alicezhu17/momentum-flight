@@ -1,27 +1,19 @@
 # momentum-flight
 
-### To Add File ###
-Go to the correct Draft folder
+### Project Summary ###
 
-Click 'Add file' > 'Create new file'
+The Lockheed Martin Challenge tasked teams to design a contour flight algorithm for autonomous drone flight using Python, along with Gazebo flight simulation software and PX4 Autopilot. Lockheed Martin provided files which can be found [here](https://github.com/katabeta/lm-mit-momentum).
 
-Title as name-date.py
+The goal was an algorithm with a three meter AGL (above ground level) accuracy and a short course completion time.
 
-Copy paste file
+### Approaches ###
 
-Click 'Commit new file'
+Above, we have a simple barebones approach along with a final reactive/proactive hybrid approach. 
 
-### Tasks ###
+The barebones approach simply flies at the maximum altitude. 
 
-N/A
+The reactive/proactive hybrid approach reacts and anticipates terrain. It achieves a three meter AGL with only 50% more time than the barebones and also removes the neccessity of an AGL and time tracker plugin by providing similar measurements.
 
-### To Do ###
+### Hybrid Flight Demonstration ###
 
-Experiment with conditional for better AGL (so drone goes down) and time
-
-See Google Docs for more instructions
-
-### Resources ###
-[Momentum Code Notes Google Docs](https://docs.google.com/document/d/190yfrauW1Njj7F8keZMDoK98A8mNPiVudUl6i1_pmwU/edit?usp=sharing)
-
-[LM Github](https://github.com/katabeta/lm-mit-momentum)
+![](flight.gif)
